@@ -23,10 +23,13 @@
    * return merged status and description from actions
     
 provision async workflow:
-* generate manifest
+* generate manifest (sync)
    * deployment name = service_instance_id
    * service broker URL (external_host): p-mysql-service_instance_id.domain
    * generate random passwords.
-* bosh deploy
-* run errand to register the route (not the broker with CC)
-* proxy `PUT /v2/service_instances/:instance_id` and their params to service broker url
+* bosh deploy (async)
+* run errand to register the route (not the broker with CC) (async): route registrar
+* proxy `PUT /v2/service_instances/:instance_id` and their params to service broker url (sync)
+
+
+
