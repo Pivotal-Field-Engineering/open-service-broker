@@ -2,13 +2,11 @@ package com.swisscom.cloud.sb.broker.services.mysql
 
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.base.Optional
-import com.google.common.base.Preconditions
 import com.swisscom.cloud.sb.broker.binding.BindRequest
 import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
-import com.swisscom.cloud.sb.broker.model.ServiceInstance
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
@@ -19,41 +17,25 @@ import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshDeprovisionSt
 import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshProvisionState
 import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshStateMachineContext
 import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshStateMachineFactory
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseBindResponseDto
 import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseFreePortFinder
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.DbUserCredentials
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.opsmanager.OpsManagerFacade
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterperiseStateMachineContext
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseDeprovisionState
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState
-import com.swisscom.cloud.sb.broker.util.ServiceDetailKey
-import com.swisscom.cloud.sb.broker.util.ServiceDetailType
 import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
-import com.swisscom.cloud.sb.client.ServiceBrokerClient
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cloud.servicebroker.model.CreateServiceInstanceAppBindingResponse
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 
 import javax.annotation.PostConstruct
 
 import static ServiceDetail.from
-import static com.google.common.base.Strings.isNullOrEmpty
-import static com.swisscom.cloud.sb.broker.services.mongodb.enterprise.statemachine.MongoDbEnterpriseProvisionState.*
-import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.*
+import static com.swisscom.cloud.sb.broker.util.ServiceDetailKey.PASSWORD
 import static com.swisscom.cloud.sb.broker.util.StringGenerator.randomAlphaNumeric
-import static com.swisscom.cloud.sb.broker.util.StringGenerator.randomAlphaNumericOfLength16
 
 @Component
 @CompileStatic
 @Slf4j
-class MysqlServiceProvider extends BoshBasedServiceProvider<MongoDbEnterpriseConfig> {
+class MysqlServiceProvider extends BoshBasedServiceProvider<MysqlConfig> {
 
     public static final String PORT = 'port'
     public static final String EXTERNAL_HOST_KEY = "cf_mysql.broker.external_host"
