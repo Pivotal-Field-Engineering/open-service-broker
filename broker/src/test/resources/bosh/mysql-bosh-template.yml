@@ -1,0 +1,20 @@
+director_uuid: {{bosh-director-uuid}}  #STACK LEVEL
+name: '{{prefix}}{{guid}}' #SERVICE-INSTANCE LEVEL  e.g. <serviceid>
+jobs:
+- instances: 1
+  name: mysql_z1
+  networks:
+  - name: mysql1
+  persistent_disk_pool: mysql-persistent-disk
+  resource_pool: mysql_z1
+  templates:
+  - consumes:
+      arbitrator: nil
+      mysql: nil
+    name: mysql
+    release: cf-mysql
+properties:
+  cf_mysql:
+    broker:
+      external_host: {{cf_mysql.broker.external_host}}
+      auth_password: {{cf_mysql.broker.auth_password}}
