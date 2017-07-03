@@ -28,6 +28,11 @@ com.swisscom.cloud.sb.broker:
     cfExtPassword: 'change_me'
 
   service:
+    mysql:
+      retryIntervalInSeconds: 15
+      maxRetryDurationInMinutes: 30
+      boshManifestFolder: 'test/resources/bosh'
+
     mongodbent:
       opsManagerUrl: 'http://localhost:55000'
       opsManagerUrlForAutomationAgent: '' #This parameter is optional
