@@ -1,0 +1,45 @@
+{
+  "guid": "mysql-service-guid",
+  "name": "mysql-on-demand",
+  "description": "Mysql-on-demand",
+  "bindable": true,
+  "asyncRequired": true,
+  "internalName": "mysql",
+  "displayIndex": 1,
+  "tags": [],
+  "metadata": {
+    "version": "3.2.11",
+    "displayName": "Mysql-on-demand"
+  },
+  "plans": [
+    {
+      "guid": "default-mysql-plan-guid",
+      "name": "default",
+      "description": "Mysql on demand default plan",
+      "templateId": "mysql-bosh-template",
+      "free": false,
+      "displayIndex": 0,
+      "containerParams": [
+        {
+          "template": "",
+          "name": "plan",
+          "value": "mongoent.small"
+        },
+        {
+          "template": "",
+          "name": "vm_instance_type",
+          "value": "mongoent.small"
+        }
+      ],
+      "metadata": {
+        "storageCapacity": "320GB",
+        "memory": "32GB",
+        "nodes": "3",
+        "maximumConcurrentConnections": "unlimited",
+        "dedicatedService": true,
+        "highAvailability": true,
+        "displayName": "Small"
+      }
+    }
+  ]
+}
