@@ -96,6 +96,8 @@ The configuration file for the Service Broker is located under
 
 ## Service Definitions
 
+Service definitions define the catalog and link to a corresponding Groovy service provider class specified by the `internalName` properly. The provider class is lazy loaded at the first provisionning request. 
+
 ### Get service definition
 
 Via the example call below, service definitions for a given service id can be retrieved.
