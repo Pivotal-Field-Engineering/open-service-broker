@@ -7,6 +7,7 @@ import com.swisscom.cloud.sb.broker.binding.BindResponse
 import com.swisscom.cloud.sb.broker.binding.UnbindRequest
 import com.swisscom.cloud.sb.broker.model.ProvisionRequest
 import com.swisscom.cloud.sb.broker.model.ServiceDetail
+import com.swisscom.cloud.sb.broker.provisioning.ProvisionResponse
 import com.swisscom.cloud.sb.broker.provisioning.async.AsyncOperationResult
 import com.swisscom.cloud.sb.broker.provisioning.lastoperation.LastOperationJobContext
 import com.swisscom.cloud.sb.broker.provisioning.statemachine.ServiceStateWithAction
@@ -17,7 +18,6 @@ import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshDeprovisionSt
 import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshProvisionState
 import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshStateMachineContext
 import com.swisscom.cloud.sb.broker.services.bosh.statemachine.BoshStateMachineFactory
-import com.swisscom.cloud.sb.broker.services.mongodb.enterprise.MongoDbEnterpriseConfig
 import com.swisscom.cloud.sb.broker.util.ServiceDetailsHelper
 import com.swisscom.cloud.sb.client.model.DeleteServiceInstanceBindingRequest
 import groovy.transform.CompileStatic
@@ -82,6 +82,18 @@ class MysqlServiceProvider extends BoshBasedServiceProvider<MysqlConfig> {
         "mysql-on-demand-" + serviceInstanceGuid + ".nd-cfapi.itn.ftgroup"
     }
 
+    @Override
+    ProvisionResponse provision(ProvisionRequest request) {
+        def provisionResponse = super.provision(request)
+        // $external_host/manage/instances/$service_instance_id
+        def dashboard_url = formatDashboardUrl(request.serviceInstanceGuid)
+        provisionResponse.setDashboardURL(dashboard_url)
+        return provisionResponse
+    }
+
+    private String formatDashboardUrl(String serviceInstanceGuid) {
+        "https://" + formatBrokerExternalHost(serviceInstanceGuid) + "/manage/instances/" + serviceInstanceGuid
+    }
 
     @Override
     AsyncOperationResult requestProvision(LastOperationJobContext context) {
