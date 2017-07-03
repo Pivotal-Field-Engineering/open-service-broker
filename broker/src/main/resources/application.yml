@@ -31,7 +31,10 @@ com.swisscom.cloud.sb.broker:
     mysql:
       retryIntervalInSeconds: 15
       maxRetryDurationInMinutes: 30
-      boshManifestFolder: 'test/resources/bosh'
+      boshDirectorBaseUrl: 'https://localhost:25556'
+      boshDirectorUsername:
+      boshDirectorPassword:
+      boshManifestFolder: 'test/resources/bosh' #used for tests, in production loaded from classpath or absolute path
 
     mongodbent:
       opsManagerUrl: 'http://localhost:55000'
