@@ -1,20 +1,156 @@
 director_uuid: {{bosh-director-uuid}}  #STACK LEVEL
 name: '{{prefix}}{{guid}}' #SERVICE-INSTANCE LEVEL  e.g. <serviceid>
-jobs:
-- instances: 1
-  name: mysql_z1
-  networks:
-  - name: mysql1
-  persistent_disk_pool: mysql-persistent-disk
-  resource_pool: mysql_z1
-  templates:
-  - consumes:
-      arbitrator: nil
-      mysql: nil
-    name: mysql
+instance_groups:
+- azs:
+  - z1
+  - z2
+  instances: 2
+  jobs:
+  - name: mysql
     release: cf-mysql
+  - name: smoke-tests-user
+    properties:
+      cf_mysql:
+        smoke_tests:
+          db_password: ((cf_mysql_smoke_tests_db_password))
+    release: cf-mysql
+  migrated_from:
+  - az: z1
+    name: mysql_z1
+  - az: z2
+    name: mysql_z2
+  name: mysql
+  networks:
+  - name: default
+  persistent_disk: 10000
+  stemcell: default
+  vm_type: default
+- azs:
+  - z3
+  instances: 1
+  jobs:
+  - name: arbitrator
+    release: cf-mysql
+  migrated_from:
+  - az: z3
+    name: arbitrator_z3
+  name: arbitrator
+  networks:
+  - name: default
+  stemcell: default
+  vm_type: default
+- azs:
+  - z1
+  - z2
+  instances: 2
+  jobs:
+  - name: proxy
+    properties:
+      cf_mysql:
+        proxy:
+          api_password: password
+    provides:
+      mysql-database:
+        as: mysql-database
+        shared: true
+    release: cf-mysql
+  migrated_from:
+  - az: z1
+    name: proxy_z1
+  - az: z2
+    name: proxy_z2
+  name: proxy
+  networks:
+  - name: default
+  stemcell: default
+  vm_type: default
+- azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: bootstrap
+    release: cf-mysql
+  lifecycle: errand
+  name: bootstrap
+  networks:
+  - name: default
+  stemcell: default
+  vm_type: default
+- azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: rejoin-unsafe
+    release: cf-mysql
+  lifecycle: errand
+  name: rejoin-unsafe
+  networks:
+  - name: default
+  stemcell: default
+  vm_type: default
+- azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: verify-cluster-schemas
+    release: cf-mysql
+  lifecycle: errand
+  name: verify-cluster-schemas
+  networks:
+  - name: default
+  stemcell: default
+  vm_type: default
+- azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: smoke-tests
+    properties:
+      cf_mysql:
+        mysql:
+          admin_password: password
+        proxy:
+          api_password: password
+        smoke_tests:
+          db_password: ((cf_mysql_smoke_tests_db_password))
+          standalone_tests_only: true
+    release: cf-mysql
+  lifecycle: errand
+  name: smoke-tests
+  networks:
+  - name: default
+  stemcell: default
+  vm_type: default
+name: cf-mysql
 properties:
   cf_mysql:
     broker:
       external_host: {{cf_mysql.broker.external_host}}
       auth_password: {{cf_mysql.broker.auth_password}}
+    mysql:
+      admin_password: password
+      cluster_health:
+        password: password
+      galera_healthcheck:
+        db_password: gh_password
+        endpoint_password: password
+      persistent_disk: 10000
+
+releases:
+- name: cf-mysql
+  sha1: 746240c005465ffa105ee89e53e401e311b4fbf8
+  url: http://bosh.io/d/github.com/cloudfoundry/cf-mysql-release?v=36
+  version: "36"
+stemcells:
+- alias: default
+  os: ubuntu-trusty
+  version: "3312.17"
+update:
+  canaries: 1
+  canary_watch_time: 10000-600000
+  max_in_flight: 1
+  serial: true
+  update_watch_time: 10000-600000
+variables:
+- name: cf_mysql_smoke_tests_db_password
+  type: password
